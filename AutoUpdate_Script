@@ -20,8 +20,23 @@ rm $travail/*
 echo -e "\n********* Téléchargements des listes de blocage *******************"
 cd $travail
 wget "http://list.iblocklist.com/?list=ydxerpxkpcfqjaybcssw&fileformat=p2p&archiveformat=gz" --output-document=$travail/bt_level1.gz
+if [ $? = 0 ]; then
+    echo -e "\nTéléchargement de la liste --bt_level1-- OK"
+else
+    echo -e "\n!!! erreur lors du téléchargement de la liste --bt_level1-- !!!"
+fi
 wget "http://list.iblocklist.com/?list=gyisgnzbhppbvsphucsw&fileformat=p2p&archiveformat=gz" --output-document=$travail/bt_level2.gz
+if [ $? = 0 ]; then
+    echo -e "\nTéléchargement de la liste --bt_level2-- OK"
+else
+    echo -e "\n!!! erreur lors du téléchargement de la liste --bt_level2-- !!!"
+fi
 wget "http://list.iblocklist.com/?list=fr&fileformat=p2p&archiveformat=gz" --output-document=$travail/france.gz
+if [ $? = 0 ]; then
+    echo -e "\nTéléchargement de la liste --france-- OK"
+else
+    echo -e "\n!!! erreur lors du téléchargement de la liste --france-- !!!"
+fi
 #wget "http://list.iblocklist.com/?list=ijfqtofzixtwayqovmxn&fileformat=p2p&archiveformat=gz" --output-document=$travail/primary_threats.gz
 #wget "http://list.iblocklist.com/?list=jcjfaxgyyshvdbceroxf&fileformat=p2p&archiveformat=gz" --output-document=$travail/business_isps.gz
 
