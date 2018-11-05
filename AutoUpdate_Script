@@ -1,0 +1,64 @@
+#!/bin/bash
+#télécharge des blockslist à partir de http://iblocklist.com/lists.php
+#et les intégre dans le répertoire de Transmission
+
+# répertoire de travail / temporaire
+travail=/home/m/tempo/blocklists
+# réperoire où Transmission stock les fichiers blocklist
+transmissionBlocklist=/home/m/Documents/configuration_transmission/blocklist
+
+echo -e "\n******** Compilation d'une Bloclist pour Transmission bt **********"
+
+if [ -e $travail ]; then
+    echo  -e "\nRépertoire de travail $travail "
+else
+    mkdir $travail
+fi
+rm $travail/*
+
+#récupération des fichiers http://iblocklist.com/lists.php
+echo -e "\n********* Téléchargements des listes de blocage *******************"
+cd $travail
+wget "http://list.iblocklist.com/?list=ydxerpxkpcfqjaybcssw&fileformat=p2p&archiveformat=gz" --output-document=$travail/bt_level1.gz
+wget "http://list.iblocklist.com/?list=gyisgnzbhppbvsphucsw&fileformat=p2p&archiveformat=gz" --output-document=$travail/bt_level2.gz
+wget "http://list.iblocklist.com/?list=fr&fileformat=p2p&archiveformat=gz" --output-document=$travail/france.gz
+#wget "http://list.iblocklist.com/?list=ijfqtofzixtwayqovmxn&fileformat=p2p&archiveformat=gz" --output-document=$travail/primary_threats.gz
+#wget "http://list.iblocklist.com/?list=jcjfaxgyyshvdbceroxf&fileformat=p2p&archiveformat=gz" --output-document=$travail/business_isps.gz
+
+#décompression et suppression du fichier *.gz
+echo -e "\n********* Décompression des listes téléchargées *******************"
+gunzip -v $travail/*.gz
+rm -v $travail/*.gz
+
+#concaténer les fichiers
+echo -e "\n********* Création d'une seule liste sans redondance des données **"
+echo -e "\ntraitement en cours ...Patientez SVP..."
+cd $travail
+list1=$(ls) && sort -u $list1 >> blocklist
+
+#Sauvegarde de l'ancienne Blocklist et déplacement du fichier blocklist dans le répertoire de Transmission
+echo -e "\n********* Sauvegarde de l'ancienne Blocklist **********************"
+if [ -f $transmissionBlocklist/blocklist ] ;then
+    mv -fv $transmissionBlocklist/blocklist $transmissionBlocklist/blocklist.bak
+    echo -e "Déplacement du nouveau fichier dans le répertoire de Transmission"
+    mv -fv $travail/blocklist $transmissionBlocklist/
+    rm -v $travail/*
+    mv -fv $transmissionBlocklist/blocklist.bak $travail/blocklist.bak
+    rm -v $transmissionBlocklist/blocklist.bak
+    echo -e "\nfichier sauvegardé dans $travail/blocklist.bak"
+else
+    echo -e "\nfpas d'ancienne Blocklist trouvée"
+echo -e "Déplacement du nouveau fichier dans le répertoire de Transmission"
+mv -fv $travail/blocklist $transmissionBlocklist/
+fi
+
+verif=$(ls blocklist)
+if [ -s $verif ]; then
+    echo -e "\n*********** Opération terminée *********************************"
+    echo -e "\nAu prochain démarrage de Transmission, "
+    echo -e "\nun nouveau fichier .bin sera généré par celui-ci "
+else
+    echo -e "\n-NOK-NOK- !! Le fichier bloklist est vide !! -NOK-NOK- "
+fi
+
+exit
